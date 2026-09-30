@@ -1,0 +1,297 @@
+{
+  "entities": {
+    "serviceOrder": {
+      "title": "Service Order",
+      "description": "Phone service repair order and tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 30 },
+        "deviceBrand": { "type": "string", "maxLength": 50 },
+        "deviceModel": { "type": "string", "maxLength": 100 },
+        "imeiOrSerial": { "type": "string", "maxLength": 50 },
+        "passcode": { "type": "string", "maxLength": 50 },
+        "completeness": { "type": "array" },
+        "complaints": { "type": "string", "maxLength": 1000 },
+        "technicalNotes": { "type": "string", "maxLength": 2000 },
+        "actionsTaken": { "type": "string", "maxLength": 2000 },
+        "sparepartsNeeded": { "type": "string", "maxLength": 1000 },
+        "sparepartCost": { "type": "number" },
+        "estimatedCost": { "type": "number" },
+        "downPayment": { "type": "number" },
+        "settlementAmount": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": ["QUEUED", "IN_PROGRESS", "WAITING_SPAREPART", "READY", "COMPLETED", "CANCELLED"]
+        },
+        "technicianStaffId": { "type": "string", "maxLength": 64 },
+        "cashierStaffId": { "type": "string", "maxLength": 64 },
+        "technicianName": { "type": "string", "maxLength": 100 },
+        "cashierName": { "type": "string", "maxLength": 100 },
+        "dpCollectedInShiftId": { "type": "string", "maxLength": 64 },
+        "settlementCollectedInShiftId": { "type": "string", "maxLength": 64 },
+        "pickupDate": { "type": "string" },
+        "warrantyDays": { "type": "number" }
+      },
+      "required": ["id", "createdAt", "customerName", "customerPhone", "deviceBrand", "deviceModel", "complaints", "status"]
+    },
+    "product": {
+      "title": "Product",
+      "description": "Store inventory product item and accessories",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "code": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 100 },
+        "costPrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "minStock": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["id", "code", "name", "category", "costPrice", "sellingPrice", "stock", "unit"]
+    },
+    "retailSale": {
+      "title": "Retail Sale",
+      "description": "Cashier POS sales transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string" },
+        "shiftId": { "type": "string", "maxLength": 64 },
+        "staffId": { "type": "string", "maxLength": 64 },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["CASH", "QRIS", "TRANSFER"]
+        },
+        "cashTendered": { "type": "number" },
+        "changeAmount": { "type": "number" },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "status": {
+          "type": "string",
+          "enum": ["COMPLETED", "RETURNED", "PARTIAL_RETURN"]
+        },
+        "returnedAmount": { "type": "number" },
+        "returnIds": { "type": "array" }
+      },
+      "required": ["id", "createdAt", "shiftId", "staffName", "totalAmount", "paymentMethod"]
+    },
+    "productReturn": {
+      "title": "Product Return",
+      "description": "Return item record and refund",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string" },
+        "transactionId": { "type": "string", "maxLength": 64 },
+        "shiftId": { "type": "string", "maxLength": 64 },
+        "staffId": { "type": "string", "maxLength": 64 },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "items": { "type": "array" },
+        "totalRefund": { "type": "number" },
+        "refundPaymentMethod": {
+          "type": "string",
+          "enum": ["DRAWER_CASH", "TRANSFER"]
+        },
+        "reason": { "type": "string", "maxLength": 500 },
+        "notes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "createdAt", "transactionId", "shiftId", "staffName", "totalRefund", "refundPaymentMethod", "reason"]
+    },
+    "restockPurchase": {
+      "title": "Restock Purchase",
+      "description": "Product restock and supplier invoice",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string" },
+        "shiftId": { "type": "string", "maxLength": 64 },
+        "supplierName": { "type": "string", "maxLength": 150 },
+        "invoiceNumber": { "type": "string", "maxLength": 100 },
+        "invoiceNo": { "type": "string", "maxLength": 100 },
+        "items": { "type": "array" },
+        "totalCost": { "type": "number" },
+        "paymentSource": {
+          "type": "string",
+          "enum": ["DRAWER_CASH", "TRANSFER_BANK", "TEMPO"]
+        },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "notes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "createdAt", "shiftId", "supplierName", "totalCost", "paymentSource", "staffName"]
+    },
+    "cashExpense": {
+      "title": "Cash Expense",
+      "description": "Cash expense from drawer or operational expenses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "shiftId": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": ["OPERASIONAL", "TOPUP_PPOB", "TARIK_TUNAI_QRIS", "RETUR_BARANG", "LAINNYA"]
+        },
+        "amount": { "type": "number" },
+        "description": { "type": "string", "maxLength": 500 },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "returnId": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "shiftId", "createdAt", "category", "amount", "description", "staffName"]
+    },
+    "ppobAudit": {
+      "title": "PPOB Audit",
+      "description": "Digital wallet audit balances and fee calculation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "shiftId": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string" },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "wallets": { "type": "object" },
+        "totalTurnover": { "type": "number" },
+        "totalUsedNet": { "type": "number" },
+        "virtualFeeProfit": { "type": "number" },
+        "transactionCount": { "type": "number" },
+        "averageFeePerTx": { "type": "number" },
+        "isUnderStandard": { "type": "boolean" },
+        "feeStatus": {
+          "type": "string",
+          "enum": ["NORMAL", "TOO_LOW", "TOO_HIGH"]
+        },
+        "notes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "shiftId", "createdAt", "staffName", "totalTurnover", "totalUsedNet", "virtualFeeProfit"]
+    },
+    "cashDrawerShift": {
+      "title": "Cash Drawer Shift",
+      "description": "Cashier drawer shift opening and closing report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "openedAt": { "type": "string" },
+        "closedAt": { "type": "string" },
+        "staffId": { "type": "string", "maxLength": 64 },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "startingCash": { "type": "number" },
+        "cashInRetail": { "type": "number" },
+        "cashInServiceDP": { "type": "number" },
+        "cashInServiceSettlement": { "type": "number" },
+        "cashInPPOBOmset": { "type": "number" },
+        "cashInOther": { "type": "number" },
+        "cashOutExpenses": { "type": "number" },
+        "cashOutReturns": { "type": "number" },
+        "cashOutRestock": { "type": "number" },
+        "cashOutPPOBDeposit": { "type": "number" },
+        "cashOutQRISWithdraw": { "type": "number" },
+        "cashOutOther": { "type": "number" },
+        "expectedEndingCash": { "type": "number" },
+        "actualEndingCash": { "type": "number" },
+        "cashDifference": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": ["OPEN", "CLOSED"]
+        },
+        "closingNotes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "openedAt", "staffId", "staffName", "startingCash", "status"]
+    },
+    "staff": {
+      "title": "Staff",
+      "description": "Counter employee and owner user account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 100 },
+        "role": {
+          "type": "string",
+          "enum": ["OWNER", "KASIR", "TEKNISI"]
+        },
+        "phone": { "type": "string", "maxLength": 30 },
+        "password": { "type": "string", "maxLength": 100 },
+        "active": { "type": "boolean" },
+        "isOwnerLocked": { "type": "boolean" },
+        "permissions": { "type": "object" }
+      },
+      "required": ["id", "name", "role", "active"]
+    },
+    "storeSettings": {
+      "title": "Store Settings",
+      "description": "Shop identity, thermal printer, and operational configurations",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string", "maxLength": 100 },
+        "tagline": { "type": "string", "maxLength": 150 },
+        "address": { "type": "string", "maxLength": 300 },
+        "phoneWhatsApp": { "type": "string", "maxLength": 30 },
+        "receiptFooterMessage": { "type": "string", "maxLength": 500 },
+        "minPpobTargetFee": { "type": "number" },
+        "maxPpobTargetFee": { "type": "number" },
+        "receiptPaperWidth": {
+          "type": "string",
+          "enum": ["58mm", "80mm"]
+        },
+        "logoUrl": { "type": "string", "maxLength": 2000 },
+        "showLogoOnReceipt": { "type": "boolean" },
+        "printerDriverPreference": { "type": "string" },
+        "savedPrinterName": { "type": "string" }
+      },
+      "required": ["storeName"]
+    }
+  },
+  "firestore": {
+    "/services/{serviceId}": {
+      "schema": "serviceOrder",
+      "description": "Repair service orders"
+    },
+    "/products/{productId}": {
+      "schema": "product",
+      "description": "Inventory product catalog items"
+    },
+    "/sales/{saleId}": {
+      "schema": "retailSale",
+      "description": "Retail sales transactions"
+    },
+    "/returns/{returnId}": {
+      "schema": "productReturn",
+      "description": "Product sales return records"
+    },
+    "/restocks/{restockId}": {
+      "schema": "restockPurchase",
+      "description": "Supplier restock purchases"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "cashExpense",
+      "description": "Cash expenses from drawer"
+    },
+    "/ppob_audits/{auditId}": {
+      "schema": "ppobAudit",
+      "description": "PPOB wallet audit records"
+    },
+    "/shifts/{shiftId}": {
+      "schema": "cashDrawerShift",
+      "description": "Cashier drawer shifts"
+    },
+    "/staff/{staffId}": {
+      "schema": "staff",
+      "description": "Shop staff accounts"
+    },
+    "/settings/{settingId}": {
+      "schema": "storeSettings",
+      "description": "Shop configuration documents"
+    },
+    "/test/{testId}": {
+      "schema": "storeSettings",
+      "description": "Connectivity test document"
+    }
+  }
+}

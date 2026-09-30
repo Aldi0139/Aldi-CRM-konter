@@ -1,0 +1,160 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all for unmatched routes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'aldiservice001@gmail.com' &&
+        request.auth.token.email_verified == true
+      );
+    }
+
+    // Connectivity test endpoint
+    match /test/{testId} {
+      allow get: if true;
+      allow list, write: if isSignedIn() && isValidId(testId);
+    }
+
+    // Services (Servis HP)
+    match /services/{serviceId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(serviceId) &&
+        request.resource.data.id is string &&
+        request.resource.data.customerName is string && request.resource.data.customerName.size() <= 100 &&
+        request.resource.data.customerPhone is string && request.resource.data.customerPhone.size() <= 30 &&
+        request.resource.data.deviceBrand is string && request.resource.data.deviceBrand.size() <= 50 &&
+        request.resource.data.deviceModel is string && request.resource.data.deviceModel.size() <= 100 &&
+        request.resource.data.complaints is string && request.resource.data.complaints.size() <= 1000 &&
+        request.resource.data.status in ['QUEUED', 'IN_PROGRESS', 'WAITING_SPAREPART', 'READY', 'COMPLETED', 'CANCELLED'];
+      allow update: if isSignedIn() && isValidId(serviceId) &&
+        request.resource.data.id == resource.data.id &&
+        request.resource.data.status in ['QUEUED', 'IN_PROGRESS', 'WAITING_SPAREPART', 'READY', 'COMPLETED', 'CANCELLED'];
+      allow delete: if isAdmin();
+    }
+
+    // Products (Katalog Barang & Stok)
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(productId) &&
+        request.resource.data.id is string &&
+        request.resource.data.name is string && request.resource.data.name.size() <= 150 &&
+        request.resource.data.category is string && request.resource.data.category.size() <= 100 &&
+        request.resource.data.costPrice is number &&
+        request.resource.data.sellingPrice is number &&
+        request.resource.data.stock is number;
+      allow update: if isSignedIn() && isValidId(productId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isSignedIn();
+    }
+
+    // Retail Sales (Penjualan Kasir POS)
+    match /sales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(saleId) &&
+        request.resource.data.id is string &&
+        request.resource.data.shiftId is string &&
+        request.resource.data.totalAmount is number &&
+        request.resource.data.paymentMethod in ['CASH', 'QRIS', 'TRANSFER'];
+      allow update: if isSignedIn() && isValidId(saleId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+    }
+
+    // Product Returns (Retur Barang)
+    match /returns/{returnId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(returnId) &&
+        request.resource.data.id is string &&
+        request.resource.data.transactionId is string &&
+        request.resource.data.totalRefund is number &&
+        request.resource.data.refundPaymentMethod in ['DRAWER_CASH', 'TRANSFER'];
+      allow update: if isSignedIn() && isValidId(returnId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+    }
+
+    // Restock Purchases (Pengadaan Stok Supplier)
+    match /restocks/{restockId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(restockId) &&
+        request.resource.data.id is string &&
+        request.resource.data.supplierName is string && request.resource.data.supplierName.size() <= 150 &&
+        request.resource.data.totalCost is number &&
+        request.resource.data.paymentSource in ['DRAWER_CASH', 'TRANSFER_BANK', 'TEMPO'];
+      allow update: if isSignedIn() && isValidId(restockId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+    }
+
+    // Cash Expenses (Pengeluaran Kas Laci)
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(expenseId) &&
+        request.resource.data.id is string &&
+        request.resource.data.shiftId is string &&
+        request.resource.data.amount is number && request.resource.data.amount >= 0 &&
+        request.resource.data.category in ['OPERASIONAL', 'TOPUP_PPOB', 'TARIK_TUNAI_QRIS', 'RETUR_BARANG', 'LAINNYA'];
+      allow update: if isSignedIn() && isValidId(expenseId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+    }
+
+    // PPOB Audits (Rekap Saldo Dompet & Fee)
+    match /ppob_audits/{auditId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(auditId) &&
+        request.resource.data.id is string &&
+        request.resource.data.shiftId is string &&
+        request.resource.data.totalTurnover is number &&
+        request.resource.data.totalUsedNet is number;
+      allow update: if isSignedIn() && isValidId(auditId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+    }
+
+    // Cash Drawer Shifts (Shift Kasir & Laci Kas)
+    match /shifts/{shiftId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(shiftId) &&
+        request.resource.data.id is string &&
+        request.resource.data.startingCash is number &&
+        request.resource.data.status in ['OPEN', 'CLOSED'];
+      allow update: if isSignedIn() && isValidId(shiftId) &&
+        request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+    }
+
+    // Staff Accounts
+    match /staff/{staffId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(staffId) &&
+        request.resource.data.id is string &&
+        request.resource.data.name is string && request.resource.data.name.size() <= 100 &&
+        request.resource.data.role in ['OWNER', 'KASIR', 'TEKNISI'];
+      allow delete: if isAdmin();
+    }
+
+    // Store Settings
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(settingId) &&
+        request.resource.data.storeName is string && request.resource.data.storeName.size() <= 100;
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Aldi Service Phone - POS & CRM Konter",
+  "description": "Aplikasi PWA modern POS kasir retail, manajemen servis HP & DP, laporan penjualan kategori kustom, riwayat transaksi, fitur retur barang otomatis ke rekap shift, grafik bulat donat, audit PPOB, dan kasir laci shift.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
